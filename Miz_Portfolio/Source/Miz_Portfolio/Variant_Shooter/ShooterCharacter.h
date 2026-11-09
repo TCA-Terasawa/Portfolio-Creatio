@@ -66,10 +66,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Team")
 	FName DeathTag = FName("Dead");
 
-	/** Tag to pass to weapons and projectiles to identify their AI perception noise as player-generated */
-	UPROPERTY(EditAnywhere, Category="Tags")
-	FName PlayerTag = FName("Player");
-
 	/** List of weapons picked up by the character */
 	TArray<AShooterWeapon*> OwnedWeapons;
 
@@ -188,7 +184,4 @@ public:
 
 	/** Returns true if the character is dead */
 	bool IsDead() const;
-
-	/** Sets the team ID for this character */
-	void SetTeam(uint8 Team);
 };

@@ -20,6 +20,25 @@ AHorrorPlayerController::AHorrorPlayerController()
 void AHorrorPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// only spawn touch controls on local player controllers
+	if (ShouldUseTouchControls() && IsLocalPlayerController())
+	{
+		// spawn the mobile controls widget
+		MobileControlsWidget = CreateWidget<UUserWidget>(this, MobileControlsWidgetClass);
+
+		if (MobileControlsWidget)
+		{
+			// add the controls to the player screen
+			MobileControlsWidget->AddToPlayerScreen(0);
+
+		} else {
+
+			UE_LOG(LogMiz_Portfolio, Error, TEXT("Could not spawn mobile controls widget."));
+
+		}
+
+	}
 }
 
 void AHorrorPlayerController::OnPossess(APawn* aPawn)
@@ -36,7 +55,7 @@ void AHorrorPlayerController::OnPossess(APawn* aPawn)
 			if (!HorrorUI)
 			{
 				HorrorUI = CreateWidget<UHorrorUI>(this, HorrorUIClass);
-				HorrorUI->AddToPlayerScreen(0);
+				HorrorUI->AddToViewport(0);
 			}
 
 			HorrorUI->SetupCharacter(HorrorCharacter);
@@ -69,25 +88,7 @@ void AHorrorPlayerController::SetupInputComponent()
 				}
 			}
 		}
-
-		if (ShouldUseTouchControls())
-		{
-			// spawn the mobile controls widget
-			MobileControlsWidget = CreateWidget<UUserWidget>(this, MobileControlsWidgetClass);
-
-			if (MobileControlsWidget)
-			{
-				// add the controls to the player screen
-				MobileControlsWidget->AddToPlayerScreen(0);
-
-			} else {
-
-				UE_LOG(LogMiz_Portfolio, Error, TEXT("Could not spawn mobile controls widget."));
-
-			}
-
-		}
-	}
+	}	
 }
 
 bool AHorrorPlayerController::ShouldUseTouchControls() const

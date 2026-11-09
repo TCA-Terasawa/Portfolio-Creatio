@@ -58,13 +58,6 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UShooterBulletCounterUI> BulletCounterUI;
 
-	/** Team ID for this player */
-	uint8 TeamByte = 0;
-
-	/** Tags that identify each team for PlayerStart selection upon respawning */
-	UPROPERTY(EditAnywhere, Category="Shooter|Team")
-	TArray<FName> TeamTags;
-
 protected:
 
 	/** Gameplay Initialization */
@@ -90,9 +83,4 @@ protected:
 
 	/** Returns true if the player should use UMG touch controls */
 	bool ShouldUseTouchControls() const;
-
-public:
-
-	/** Assigns a team ID to this player */
-	void SetTeam(uint8 Team);
 };

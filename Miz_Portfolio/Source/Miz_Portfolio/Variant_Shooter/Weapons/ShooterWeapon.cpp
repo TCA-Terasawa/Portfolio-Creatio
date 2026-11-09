@@ -68,11 +68,8 @@ void AShooterWeapon::OnOwnerDestroyed(AActor* DestroyedActor)
 	Destroy();
 }
 
-void AShooterWeapon::ActivateWeapon(const FName& OwnerTag)
+void AShooterWeapon::ActivateWeapon()
 {
-	// save the owner tag for perception noise detection
-	NoiseOwnerTag = OwnerTag;
-
 	// unhide this weapon
 	SetActorHiddenInGame(false);
 
@@ -141,7 +138,7 @@ void AShooterWeapon::Fire()
 	TimeOfLastShot = GetWorld()->GetTimeSeconds();
 
 	// make noise so the AI perception system can hear us
-	MakeNoise(ShotLoudness, PawnOwner, PawnOwner->GetActorLocation(), ShotNoiseRange, NoiseOwnerTag);
+	MakeNoise(ShotLoudness, PawnOwner, PawnOwner->GetActorLocation(), ShotNoiseRange, ShotNoiseTag);
 
 	// are we full auto?
 	if (bFullAuto)
@@ -175,12 +172,6 @@ void AShooterWeapon::FireProjectile(const FVector& TargetLocation)
 	SpawnParams.Instigator = PawnOwner;
 
 	AShooterProjectile* Projectile = GetWorld()->SpawnActor<AShooterProjectile>(ProjectileClass, ProjectileTransform, SpawnParams);
-
-	// set the noise tag on the projectile
-	if (Projectile)
-	{
-		Projectile->SetNoiseTag(NoiseOwnerTag);
-	}
 
 	// play the firing montage
 	WeaponOwner->PlayFiringMontage(FiringMontage);

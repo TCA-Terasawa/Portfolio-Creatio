@@ -8,8 +8,6 @@
 #include "Components/ArrowComponent.h"
 #include "TimerManager.h"
 #include "ShooterNPC.h"
-#include "Kismet/GameplayStatics.h"
-#include "ShooterGameMode.h"
 
 // Sets default values
 AShooterNPCSpawner::AShooterNPCSpawner()
@@ -35,15 +33,6 @@ void AShooterNPCSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// ignore if enemies are disabled at the GameMode level
-	if (AShooterGameMode* GM = Cast<AShooterGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
-	{
-		if (!GM->ShouldSpawnEnemyNPCs())
-		{
-			return;
-		}
-	}
-
 	// ensure we don't spawn NPCs if our initial spawn count is zero
 	if (SpawnCount > 0)
 	{

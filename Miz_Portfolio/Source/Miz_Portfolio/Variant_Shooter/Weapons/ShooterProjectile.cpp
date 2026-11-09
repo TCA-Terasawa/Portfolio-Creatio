@@ -165,8 +165,3 @@ void AShooterProjectile::OnDeferredDestruction()
 	// destroy this actor
 	Destroy();
 }
-
-void AShooterProjectile::SetNoiseTag(const FName& Tag)
-{
-	NoiseTag = Tag;
-}

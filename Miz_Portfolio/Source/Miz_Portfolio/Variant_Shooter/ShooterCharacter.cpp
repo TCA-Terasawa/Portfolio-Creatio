@@ -8,7 +8,6 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
@@ -163,7 +162,7 @@ void AShooterCharacter::DoSwitchWeapon()
 		CurrentWeapon = OwnedWeapons[WeaponIndex];
 
 		// activate the new weapon
-		CurrentWeapon->ActivateWeapon(PlayerTag);
+		CurrentWeapon->ActivateWeapon();
 	}
 }
 
@@ -242,7 +241,7 @@ void AShooterCharacter::AddWeaponClass(const TSubclassOf<AShooterWeapon>& Weapon
 
 			// switch to the new weapon
 			CurrentWeapon = AddedWeapon;
-			CurrentWeapon->ActivateWeapon(PlayerTag);
+			CurrentWeapon->ActivateWeapon();
 		}
 	}
 }
@@ -302,10 +301,6 @@ void AShooterCharacter::Die()
 		
 	// stop character movement
 	GetCharacterMovement()->StopMovementImmediately();
-	GetCharacterMovement()->DisableMovement();
-
-	// disable collision
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// disable controls
 	DisableInput(nullptr);
@@ -330,9 +325,4 @@ bool AShooterCharacter::IsDead() const
 {
 	// the character is dead if their current HP drops to zero
 	return CurrentHP <= 0.0f;
-}
-
-void AShooterCharacter::SetTeam(uint8 Team)
-{
-	TeamByte = Team;
 }

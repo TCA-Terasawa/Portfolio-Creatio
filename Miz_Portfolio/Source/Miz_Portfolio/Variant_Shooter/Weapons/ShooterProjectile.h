@@ -35,7 +35,7 @@ protected:
 
 	/** Range of the AI perception noise done by this projectile on hit */
 	UPROPERTY(EditAnywhere, Category="Projectile|Noise", meta = (ClampMin = 0, ClampMax = 100000, Units = "cm"))
-	float NoiseRange = 1000.0f;
+	float NoiseRange = 3000.0f;
 
 	/** Tag of the AI perception noise done by this projectile on hit */
 	UPROPERTY(EditAnywhere, Category="Noise")
@@ -105,10 +105,5 @@ protected:
 
 	/** Called from the destruction timer to destroy this projectile */
 	void OnDeferredDestruction();
-
-public:
-
-	/** Sets the noise tag to use when generating AI perception noise on impact */
-	void SetNoiseTag(const FName& Tag);
 
 };

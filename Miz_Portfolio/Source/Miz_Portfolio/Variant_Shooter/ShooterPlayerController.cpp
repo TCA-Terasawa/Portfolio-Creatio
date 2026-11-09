@@ -15,33 +15,10 @@
 void AShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-}
 
-void AShooterPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	// only add IMCs for local player controllers
+	// only spawn touch controls on local player controllers
 	if (IsLocalPlayerController())
 	{
-		// add the input mapping contexts
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-		{
-			for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
-			{
-				Subsystem->AddMappingContext(CurrentContext, 0);
-			}
-
-			// only add these IMCs if we're not using mobile touch input
-			if (!ShouldUseTouchControls())
-			{
-				for (UInputMappingContext* CurrentContext : MobileExcludedMappingContexts)
-				{
-					Subsystem->AddMappingContext(CurrentContext, 0);
-				}
-			}
-		}
-
 		if (ShouldUseTouchControls())
 		{
 			// spawn the mobile controls widget
@@ -71,6 +48,34 @@ void AShooterPlayerController::SetupInputComponent()
 			UE_LOG(LogMiz_Portfolio, Error, TEXT("Could not spawn bullet counter widget."));
 
 		}
+		
+	}
+}
+
+void AShooterPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// only add IMCs for local player controllers
+	if (IsLocalPlayerController())
+	{
+		// add the input mapping contexts
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+		{
+			for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
+			{
+				Subsystem->AddMappingContext(CurrentContext, 0);
+			}
+
+			// only add these IMCs if we're not using mobile touch input
+			if (!ShouldUseTouchControls())
+			{
+				for (UInputMappingContext* CurrentContext : MobileExcludedMappingContexts)
+				{
+					Subsystem->AddMappingContext(CurrentContext, 0);
+				}
+			}
+		}
 	}
 }
 
@@ -86,9 +91,6 @@ void AShooterPlayerController::OnPossess(APawn* InPawn)
 	{
 		// add the player tag
 		ShooterCharacter->Tags.Add(PlayerPawnTag);
-
-		// set the team
-		ShooterCharacter->SetTeam(TeamByte);
 
 		// subscribe to the pawn's delegates
 		ShooterCharacter->OnBulletCountUpdated.AddDynamic(this, &AShooterPlayerController::OnBulletCountUpdated);
@@ -107,25 +109,22 @@ void AShooterPlayerController::OnPawnDestroyed(AActor* DestroyedActor)
 		BulletCounterUI->BP_UpdateBulletCounter(0, 0);
 	}
 
-	if (TeamByte < TeamTags.Num())
+	// find the player start
+	TArray<AActor*> ActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), ActorList);
+
+	if (ActorList.Num() > 0)
 	{
-		// find the player start
-		TArray<AActor*> ActorList;
-		UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), APlayerStart::StaticClass(), TeamTags[TeamByte], ActorList);
+		// select a random player start
+		AActor* RandomPlayerStart = ActorList[FMath::RandRange(0, ActorList.Num() - 1)];
 
-		if (ActorList.Num() > 0)
+		// spawn a character at the player start
+		const FTransform SpawnTransform = RandomPlayerStart->GetActorTransform();
+
+		if (AShooterCharacter* RespawnedCharacter = GetWorld()->SpawnActor<AShooterCharacter>(CharacterClass, SpawnTransform))
 		{
-			// select a random player start
-			AActor* RandomPlayerStart = ActorList[FMath::RandRange(0, ActorList.Num() - 1)];
-
-			// spawn a character at the player start
-			const FTransform SpawnTransform = RandomPlayerStart->GetActorTransform();
-
-			if (AShooterCharacter* RespawnedCharacter = GetWorld()->SpawnActor<AShooterCharacter>(CharacterClass, SpawnTransform))
-			{
-				// possess the character
-				Possess(RespawnedCharacter);
-			}
+			// possess the character
+			Possess(RespawnedCharacter);
 		}
 	}
 }
@@ -151,15 +150,4 @@ bool AShooterPlayerController::ShouldUseTouchControls() const
 {
 	// are we on a mobile platform? Should we force touch?
 	return SVirtualJoystick::ShouldDisplayTouchInterface() || bForceTouchControls;
-}
-
-void AShooterPlayerController::SetTeam(uint8 Team)
-{
-	TeamByte = Team;
-
-	// if we already have a pawn, set its team
-	if (AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(GetPawn()))
-	{
-		ShooterCharacter->SetTeam(Team);
-	}
 }

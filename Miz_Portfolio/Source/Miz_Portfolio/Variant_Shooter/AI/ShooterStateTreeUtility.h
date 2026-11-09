@@ -22,11 +22,11 @@ struct FStateTreeLineOfSightToTargetConditionInstanceData
 	
 	/** Targeting character */
 	UPROPERTY(EditAnywhere, Category = "Context")
-	TObjectPtr<AShooterNPC> Character;
+	AShooterNPC* Character;
 
 	/** Target to check line of sight for */
 	UPROPERTY(EditAnywhere, Category = "Condition")
-	TObjectPtr<AActor> Target;
+	AActor* Target;
 
 	/** Max allowed line of sight cone angle, in degrees */
 	UPROPERTY(EditAnywhere, Category = "Condition")
@@ -40,6 +40,7 @@ struct FStateTreeLineOfSightToTargetConditionInstanceData
 	UPROPERTY(EditAnywhere, Category = "Condition")
 	bool bMustHaveLineOfSight = true;
 };
+STATETREE_POD_INSTANCEDATA(FStateTreeLineOfSightToTargetConditionInstanceData);
 
 /**
  *  StateTree condition to check if the character is grounded
@@ -93,16 +94,6 @@ struct FStateTreeFaceActorTask : public FStateTreeTaskCommonBase
 {
 	GENERATED_BODY()
 
-	/** Constructor */
-	FStateTreeFaceActorTask()
-	{
-		// disable tick
-		bShouldCallTick = false;
-
-		// skip state change events if this is sustained
-		bShouldStateChangeOnReselect = false;
-	}
-
 	/* Ensure we're using the correct instance data struct */
 	using FInstanceDataType = FStateTreeFaceActorInstanceData;
 	virtual const UStruct* GetInstanceDataType() const override { return FInstanceDataType::StaticStruct(); }
@@ -144,16 +135,6 @@ USTRUCT(meta=(DisplayName="Face Towards Location", Category="Shooter"))
 struct FStateTreeFaceLocationTask : public FStateTreeTaskCommonBase
 {
 	GENERATED_BODY()
-
-	/** Constructor */
-	FStateTreeFaceLocationTask()
-	{
-		// disable tick
-		bShouldCallTick = false;
-
-		// skip state change events if this is sustained
-		bShouldStateChangeOnReselect = false;
-	}
 
 	/* Ensure we're using the correct instance data struct */
 	using FInstanceDataType = FStateTreeFaceLocationInstanceData;
@@ -201,16 +182,6 @@ struct FStateTreeSetRandomFloatTask : public FStateTreeTaskCommonBase
 {
 	GENERATED_BODY()
 
-	/** Constructor */
-	FStateTreeSetRandomFloatTask()
-	{
-		// disable tick
-		bShouldCallTick = false;
-
-		// skip state change events if this is sustained
-		bShouldStateChangeOnReselect = false;
-	}
-
 	/* Ensure we're using the correct instance data struct */
 	using FInstanceDataType = FStateTreeSetRandomFloatData;
 	virtual const UStruct* GetInstanceDataType() const override { return FInstanceDataType::StaticStruct(); }
@@ -249,16 +220,6 @@ USTRUCT(meta=(DisplayName="Shoot at Target", Category="Shooter"))
 struct FStateTreeShootAtTargetTask : public FStateTreeTaskCommonBase
 {
 	GENERATED_BODY()
-
-	/** Constructor */
-	FStateTreeShootAtTargetTask()
-	{
-		// disable tick
-		bShouldCallTick = false;
-
-		// skip state change events if this is sustained
-		bShouldStateChangeOnReselect = false;
-	}
 
 	/* Ensure we're using the correct instance data struct */
 	using FInstanceDataType = FStateTreeShootAtTargetInstanceData;
@@ -301,21 +262,17 @@ struct FStateTreeSenseEnemiesInstanceData
 	UPROPERTY(EditAnywhere, Category = Output)
 	FVector InvestigateLocation = FVector::ZeroVector;
 
+	/** True if a target was successfully sensed */
+	UPROPERTY(EditAnywhere, Category = Output)
+	bool bHasTarget = false;
+
+	/** True if an investigate location was successfully sensed */
+	UPROPERTY(EditAnywhere, Category = Output)
+	bool bHasInvestigateLocation = false;
+
 	/** Tag required on sensed actors */
 	UPROPERTY(EditAnywhere, Category = Parameter)
 	FName SenseTag = FName("Player");
-
-	/** StateTree delegate to broadcast when the AI should move to investigate something suspicious */
-	UPROPERTY(EditAnywhere)
-	FStateTreeDelegateDispatcher OnInvestigateLocationDelegate;
-
-	/** StateTree delegate to broadcast when the AI has detected an enemy and should attack it */
-	UPROPERTY(EditAnywhere)
-	FStateTreeDelegateDispatcher OnSeeEnemyDelegate;
-
-	/** StateTree delegate to broadcast when the AI has lost track of its target */
-	UPROPERTY(EditAnywhere)
-	FStateTreeDelegateDispatcher OnForgetEnemyDelegate;
 
 	/** Line of sight cone half angle to consider a full sense */
 	UPROPERTY(EditAnywhere, Category = Parameter)
@@ -324,9 +281,6 @@ struct FStateTreeSenseEnemiesInstanceData
 	/** Strength of the last processed stimulus */
 	UPROPERTY(EditAnywhere)
 	float LastStimulusStrength = 0.0f;
-
-	UPROPERTY(EditAnywhere)
-	float LastStimulusTime = 0.0f;
 };
 
 /**
@@ -336,16 +290,6 @@ USTRUCT(meta=(DisplayName="Sense Enemies", Category="Shooter"))
 struct FStateTreeSenseEnemiesTask : public FStateTreeTaskCommonBase
 {
 	GENERATED_BODY()
-
-	/** Constructor */
-	FStateTreeSenseEnemiesTask()
-	{
-		// disable tick
-		bShouldCallTick = false;
-
-		// skip state change events if this is sustained
-		bShouldStateChangeOnReselect = false;
-	}
 
 	/* Ensure we're using the correct instance data struct */
 	using FInstanceDataType = FStateTreeSenseEnemiesInstanceData;
